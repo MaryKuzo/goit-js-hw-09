@@ -22,86 +22,92 @@ Report.info(
 flatpickr(calendar, {
   enableTime: true,
   time_24hr: true,
-  defaultDate: new Date(),
+  defaultDate: Date.now(),
   minuteIncrement: 1,
   onClose(selectedDates) {
     if (selectedDates[0].getTime() < Date.now()) {
-      Report.failure(
-        '🥺 Ooops...',
+      Report.failure('🥺 Ooops...',
         'Please choose a date in the future',
-        'Okay'
-      );
+        'Okay')
     } else {
-      Report.success(
-        '😎 Congratulation! Click on start!',
-
-      );
+      Report.success('😎 Congratulation! Click on start!')
       startBtn.disabled = false;
-      const setTimer = () => {
-        selectedDate = selectedDates[0].getTime();
+      onStartBtn = () => {
         timer.start();
-      };
+        selectedDate = selectedDates[0].getTime();
+      }
+      startBtn.addEventListener('click', onStartBtn)
 
-      startBtn.addEventListener('click', setTimer);
     }
-  },
-});
+  }
+})
 
 const timer = {
-  rootSelector: document.querySelector('.timer'),
+  timerSelector: document.querySelector('.timer'),
   start() {
-    intervalId = setInterval(() => {
+    this.intervalId = setInterval(() => {
       startBtn.disabled = true;
       calendar.disabled = true;
-      currentDate = Date.now();
+      const currentDate = new Date();
       const delta = selectedDate - currentDate;
 
       if (delta <= 0) {
         this.stop();
-        Report.success(
-          '👏 Congratulation! Timer stopped!',
-        );
-        return;
+        Report.info('👏 Congratulation! Timer stopped!');
+        return
       }
+
+
+
       const { days, hours, minutes, seconds } = this.convertMs(delta);
-      this.rootSelector.querySelector('[data-days]').textContent =
-        this.addLeadingZero(days);
-      this.rootSelector.querySelector('[data-hours]').textContent =
-        this.addLeadingZero(hours);
-      this.rootSelector.querySelector('[data-minutes]').textContent =
-        this.addLeadingZero(minutes);
-      this.rootSelector.querySelector('[data-seconds]').textContent =
-        this.addLeadingZero(seconds);
-    }, TIMER_DELAY);
+      this.timerSelector.querySelector('[data-days]').textContent = this.addLeadingZero(days);
+      this.timerSelector.querySelector('[data-hours]').textContent = this.addLeadingZero(hours);
+      this.timerSelector.querySelector('[data-minutes]').textContent = this.addLeadingZero(minutes);
+      this.timerSelector.querySelector('[data-seconds]').textContent = this.addLeadingZero(seconds);
+
+
+    },
+      TIMER_DELAY)
   },
+   stop() {
+     clearInterval(intervalId);
+     startBtn.disabled = false;
+     calendar.disabled = false;
+     this.intervalId = null;
+},
 
-  stop() {
-    clearInterval(intervalId);
-    this.intervalId = null;
-    startBtn.disabled = true;
-    calendar.disabled = false;
-  },
+ convertMs(ms) {
+  // Number of milliseconds per unit of time
+  const second = 1000;
+  const minute = second * 60;
+  const hour = minute * 60;
+  const day = hour * 24;
 
-  convertMs(ms) {
-    const second = 1000;
-    const minute = second * 60;
-    const hour = minute * 60;
-    const day = hour * 24;
+  // Remaining days
+  const days = this.addLeadingZero(Math.floor(ms / day));
+  // Remaining hours
+  const hours = this.addLeadingZero(Math.floor((ms % day) / hour));
+  // Remaining minutes
+  const minutes = this.addLeadingZero(Math.floor(((ms % day) % hour) / minute));
+  // Remaining seconds
+  const seconds = this.addLeadingZero(Math.floor((((ms % day) % hour) % minute) / second));
 
-    const days = this.addLeadingZero(Math.floor(ms / day));
-    const hours = this.addLeadingZero(Math.floor((ms % day) / hour));
-    const minutes = this.addLeadingZero(
-      Math.floor(((ms % day) % hour) / minute)
-    );
-    const seconds = this.addLeadingZero(
-      Math.floor((((ms % day) % hour) % minute) / second)
-    );
+  return { days, hours, minutes, seconds };
 
-    return { days, hours, minutes, seconds };
-  },
 
-  addLeadingZero(value) {
+},
+   addLeadingZero(value){
     return String(value).padStart(2, 0);
-  },
+  }
+// console.log(convertMs(2000)); // {days: 0, hours: 0, minutes: 0, seconds: 2}
+// console.log(convertMs(140000)); // {days: 0, hours: 0, minutes: 2, seconds: 20}
+// console.log(convertMs(24140000)); // {days: 0, hours: 6 minutes: 42, seconds: 20}
+
 };
+
+
+
+
+
+
 
