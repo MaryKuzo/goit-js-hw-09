@@ -2,7 +2,8 @@
 import flatpickr from "flatpickr";
 // Додатковий імпорт стилів
 import "flatpickr/dist/flatpickr.min.css";
-import Notiflix, { Report } from 'notiflix';
+
+import { Report } from 'notiflix';
 
 const TIMER_DELAY = 1000;
 let intervalId = null;
@@ -32,7 +33,7 @@ flatpickr(calendar, {
     } else {
       Report.success('😎 Congratulation! Click on start!')
       startBtn.disabled = false;
-      onStartBtn = () => {
+      const onStartBtn = () => {
         timer.start();
         selectedDate = selectedDates[0].getTime();
       }
@@ -70,7 +71,7 @@ const timer = {
       TIMER_DELAY)
   },
    stop() {
-     clearInterval(intervalId);
+     clearInterval(this.intervalId);
      startBtn.disabled = false;
      calendar.disabled = false;
      this.intervalId = null;
