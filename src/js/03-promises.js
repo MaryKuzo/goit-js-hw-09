@@ -36,8 +36,22 @@ function onCreatePromise(event) {
   let stepInput = Number(step.value);
   let amountInput = Number(amount.value);
 
+  if (stepInput < 0 || delayInput < 0 || amountInput <= 0) {
+    Notify.failure('Invalid input values', options);
+    return;
+  };
+
+  let firstDelay = true;
+  
   for (let i = 1; i <= amountInput; i += 1){
-    delayInput += stepInput;
+    if (firstDelay) {
+      firstDelay = false;
+      delayInput = 1000;
+    } else {
+        delayInput += stepInput;
+
+    }
+
     createPromise(i, delayInput)
   .then(({ position, delay }) => {
     Notify.success(`✅ Fulfilled promise ${position} in ${delay}ms`, options);
